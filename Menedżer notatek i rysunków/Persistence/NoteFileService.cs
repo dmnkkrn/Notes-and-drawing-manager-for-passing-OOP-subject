@@ -1,0 +1,33 @@
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
+using Menedżer_notatek_i_rysunków.Models;
+
+namespace Menedżer_notatek_i_rysunków.Persistence
+{
+    public class NoteFileService
+    {
+        private readonly JsonSerializerOptions _options =
+            new JsonSerializerOptions
+            {
+                WriteIndented = true
+            };
+
+        public void Save(string path, IEnumerable<Note> notes)
+        {
+            string json = JsonSerializer.Serialize(notes, _options);
+            File.WriteAllText(path, json);
+        }
+
+        public List<Note> Load(string path)
+        {
+            if (!File.Exists(path))
+                return new List<Note>();
+
+            string json = File.ReadAllText(path);
+
+            return JsonSerializer.Deserialize<List<Note>>(json)
+                   ?? new List<Note>();
+        }
+    }
+}
