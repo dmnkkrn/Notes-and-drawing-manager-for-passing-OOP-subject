@@ -19,6 +19,7 @@ namespace Menedżer_notatek_i_rysunków
 
             var fileService = new NoteFileService();
             var notes = fileService.Load("notes.json");
+            var zipService = new ZipExportService();
 
             var repo = new NoteRepository<Note>();
             foreach (var note in notes)
@@ -27,7 +28,7 @@ namespace Menedżer_notatek_i_rysunków
             }
 
 
-            Application.Run(new Form1(repo, fileService));
+            Application.Run(new Form1(repo, fileService, zipService));
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+﻿////using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -30,6 +30,11 @@ namespace Menedżer_notatek_i_rysunków.Repositories
         public IReadOnlyList<T> GetAll()
         {
             return _items.AsReadOnly();
+        }
+
+        public void Clear()
+        {
+            _items.Clear();
         }
     }
 
