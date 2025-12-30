@@ -19,6 +19,10 @@ namespace Menedżer_notatek_i_rysunków
         private NoteFileService _fileService;
         private ZipExportService _zipService;
         private EncryptionService _encryptionService;
+
+        string jsonPath = "notes.json";
+        string zipPath = "notes_export.zip";
+        string encPath = "notes_export.zip.enc";
         public Form1(NoteRepository<Note> repository, NoteFileService fileService,
             ZipExportService zipService, EncryptionService encryptionService)
         {
@@ -45,7 +49,7 @@ namespace Menedżer_notatek_i_rysunków
         }
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            _fileService.Save("notes.json", _repository.GetAll());
+            _fileService.Save(jsonPath, _repository.GetAll());
         }
 
         private void addButton_Click(object sender, EventArgs e)
@@ -113,9 +117,6 @@ namespace Menedżer_notatek_i_rysunków
 
         private void exportAsZipToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            string jsonPath = "notes.json";
-            string zipPath = "notes_export.zip";
-
             try
             {
                 _fileService.Save(jsonPath, _repository.GetAll());
@@ -140,8 +141,18 @@ namespace Menedżer_notatek_i_rysunków
                 return;
 
             string selectedPath = dialog.FileName;
-            string tempDir = Path.Combine(Path.GetTempPath(), "NaDM_Import");
-            string zipPath = Path.Combine(tempDir, "import.zip");
+
+            string workDir = Path.Combine(
+                Path.GetTempPath(),
+                "NaDM_Work_" + Guid.NewGuid()
+            );
+
+            string extractDir = Path.Combine(workDir, "extract");
+
+            Directory.CreateDirectory(workDir);
+            Directory.CreateDirectory(extractDir);
+
+            string zipToImport;
 
             try
             {
@@ -155,27 +166,32 @@ namespace Menedżer_notatek_i_rysunków
                     if (string.IsNullOrWhiteSpace(password))
                         return;
 
+                    zipToImport = Path.Combine(
+                        workDir,
+                        Path.GetFileName(selectedPath).Replace(".enc", "")
+                    );
+
                     _encryptionService.DecryptFile(
                         selectedPath,
-                        zipPath,
+                        zipToImport,
                         password
                     );
                 }
                 else
                 {
-                    zipPath = selectedPath;
+                    zipToImport = selectedPath;
                 }
 
-                _zipService.ImportZip(zipPath, tempDir);
+                _zipService.ImportZip(zipToImport, extractDir);
 
-                string jsonPath = Path.Combine(tempDir, "notes.json");
-                if (!File.Exists(jsonPath))
+                string importedJsonPath = Path.Combine(extractDir, "notes.json");
+                if (!File.Exists(importedJsonPath))
                 {
                     MessageBox.Show("notes.json not found.");
                     return;
                 }
 
-                var notes = _fileService.Load(jsonPath);
+                var notes = _fileService.Load(importedJsonPath);
 
                 _repository.Clear();
                 foreach (var note in notes)
@@ -194,12 +210,10 @@ namespace Menedżer_notatek_i_rysunków
             }
         }
 
+
+
         private void exportAsZipEncryptedToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            string jsonPath = "notes.json";
-            string zipPath = "notes_export.zip";
-            string encPath = "notes_export.zip.enc";
-
             string password = Interaction.InputBox(
                 "Password:",
                 "Encrypt ZIP"
@@ -225,6 +239,7 @@ namespace Menedżer_notatek_i_rysunków
             {
                 MessageBox.Show("Export failed: " + ex.Message);
             }
+            File.Delete(zipPath);
         }
     }
 }
