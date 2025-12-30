@@ -1,5 +1,6 @@
 ﻿using Menedżer_notatek_i_rysunków.Models;
 using Menedżer_notatek_i_rysunków.Persistence;
+using Menedżer_notatek_i_rysunków.Persistence.Security;
 using Menedżer_notatek_i_rysunków.Repositories;
 using Microsoft.VisualBasic;
 using System;
@@ -17,12 +18,15 @@ namespace Menedżer_notatek_i_rysunków
         private NoteRepository<Note> _repository;
         private NoteFileService _fileService;
         private ZipExportService _zipService;
-        public Form1(NoteRepository<Note> repository, NoteFileService fileService, ZipExportService zipService)
+        private EncryptionService _encryptionService;
+        public Form1(NoteRepository<Note> repository, NoteFileService fileService,
+            ZipExportService zipService, EncryptionService encryptionService)
         {
             InitializeComponent();
             _repository = repository;
             _fileService = fileService;
             _zipService = zipService;
+            _encryptionService = encryptionService;
 
 
             this.FormClosing += Form1_FormClosing;
@@ -129,32 +133,52 @@ namespace Menedżer_notatek_i_rysunków
         {
             using var dialog = new OpenFileDialog
             {
-                Filter = "ZIP files (*.zip)|*.zip"
+                Filter = "ZIP files (*.zip;*.enc)|*.zip;*.enc"
             };
 
             if (dialog.ShowDialog() != DialogResult.OK)
                 return;
 
-            string tempDir = Path.Combine(
-                Path.GetTempPath(),
-                "NotesImport"
-            );
+            string selectedPath = dialog.FileName;
+            string tempDir = Path.Combine(Path.GetTempPath(), "NaDM_Import");
+            string zipPath = Path.Combine(tempDir, "import.zip");
 
             try
             {
-                _zipService.ImportZip(dialog.FileName, tempDir);
+                if (_encryptionService.IsEncrypted(selectedPath))
+                {
+                    string password = Interaction.InputBox(
+                        "Password:",
+                        "Encrypted import"
+                    );
+
+                    if (string.IsNullOrWhiteSpace(password))
+                        return;
+
+                    _encryptionService.DecryptFile(
+                        selectedPath,
+                        zipPath,
+                        password
+                    );
+                }
+                else
+                {
+                    zipPath = selectedPath;
+                }
+
+                _zipService.ImportZip(zipPath, tempDir);
 
                 string jsonPath = Path.Combine(tempDir, "notes.json");
                 if (!File.Exists(jsonPath))
                 {
-                    MessageBox.Show("notes.json not found in ZIP.");
+                    MessageBox.Show("notes.json not found.");
                     return;
                 }
 
-                var importedNotes = _fileService.Load(jsonPath);
+                var notes = _fileService.Load(jsonPath);
 
                 _repository.Clear();
-                foreach (var note in importedNotes)
+                foreach (var note in notes)
                 {
                     _repository.Add(note);
                 }
@@ -167,6 +191,39 @@ namespace Menedżer_notatek_i_rysunków
             catch (Exception ex)
             {
                 MessageBox.Show("Import failed: " + ex.Message);
+            }
+        }
+
+        private void exportAsZipEncryptedToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string jsonPath = "notes.json";
+            string zipPath = "notes_export.zip";
+            string encPath = "notes_export.zip.enc";
+
+            string password = Interaction.InputBox(
+                "Password:",
+                "Encrypt ZIP"
+            );
+
+            if (string.IsNullOrWhiteSpace(password))
+                return;
+
+            try
+            {
+                _fileService.Save(jsonPath, _repository.GetAll());
+                _zipService.ExportJsonToZip(jsonPath, zipPath);
+
+                _encryptionService.EncryptFile(
+                    zipPath,
+                    encPath,
+                    password
+                );
+
+                MessageBox.Show("Encrypted export completed.");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Export failed: " + ex.Message);
             }
         }
     }

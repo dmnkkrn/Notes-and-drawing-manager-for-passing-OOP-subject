@@ -38,6 +38,7 @@
             importZipToolStripMenuItem = new ToolStripMenuItem();
             noteTextBoxRich = new RichTextBox();
             editButton = new Button();
+            exportAsZipEncryptedToolStripMenuItem = new ToolStripMenuItem();
             menuStrip1.SuspendLayout();
             SuspendLayout();
             // 
@@ -88,7 +89,7 @@
             // 
             // exportImportToolStripMenuItem
             // 
-            exportImportToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { exportAsZipToolStripMenuItem, importZipToolStripMenuItem });
+            exportImportToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { exportAsZipToolStripMenuItem, exportAsZipEncryptedToolStripMenuItem, importZipToolStripMenuItem });
             exportImportToolStripMenuItem.Name = "exportImportToolStripMenuItem";
             exportImportToolStripMenuItem.Size = new Size(125, 24);
             exportImportToolStripMenuItem.Text = "Export / Import";
@@ -96,14 +97,14 @@
             // exportAsZipToolStripMenuItem
             // 
             exportAsZipToolStripMenuItem.Name = "exportAsZipToolStripMenuItem";
-            exportAsZipToolStripMenuItem.Size = new Size(224, 26);
+            exportAsZipToolStripMenuItem.Size = new Size(259, 26);
             exportAsZipToolStripMenuItem.Text = "Export as Zip";
             exportAsZipToolStripMenuItem.Click += exportAsZipToolStripMenuItem_Click;
             // 
             // importZipToolStripMenuItem
             // 
             importZipToolStripMenuItem.Name = "importZipToolStripMenuItem";
-            importZipToolStripMenuItem.Size = new Size(224, 26);
+            importZipToolStripMenuItem.Size = new Size(259, 26);
             importZipToolStripMenuItem.Text = "Import Zip";
             importZipToolStripMenuItem.Click += importZipToolStripMenuItem_Click;
             // 
@@ -124,6 +125,13 @@
             editButton.Text = "Save";
             editButton.UseVisualStyleBackColor = true;
             editButton.Click += editButton_Click;
+            // 
+            // exportAsZipEncryptedToolStripMenuItem
+            // 
+            exportAsZipEncryptedToolStripMenuItem.Name = "exportAsZipEncryptedToolStripMenuItem";
+            exportAsZipEncryptedToolStripMenuItem.Size = new Size(259, 26);
+            exportAsZipEncryptedToolStripMenuItem.Text = "Export as Zip (Encrypted)";
+            exportAsZipEncryptedToolStripMenuItem.Click += exportAsZipEncryptedToolStripMenuItem_Click;
             // 
             // Form1
             // 
@@ -157,5 +165,6 @@
         private ToolStripMenuItem exportImportToolStripMenuItem;
         private ToolStripMenuItem exportAsZipToolStripMenuItem;
         private ToolStripMenuItem importZipToolStripMenuItem;
+        private ToolStripMenuItem exportAsZipEncryptedToolStripMenuItem;
     }
 }
