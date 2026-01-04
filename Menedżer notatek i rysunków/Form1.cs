@@ -20,7 +20,10 @@ namespace Menedżer_notatek_i_rysunków
         private ZipExportService _zipService;
         private EncryptionService _encryptionService;
 
+        private AutosaveService<Note> _autosaveService;
+
         string jsonPath = "notes.json";
+        string restorePath = "notes_restore.json";
         string zipPath = "notes_export.zip";
         string encPath = "notes_export.zip.enc";
         public Form1(NoteRepository<Note> repository, NoteFileService fileService,
@@ -37,6 +40,36 @@ namespace Menedżer_notatek_i_rysunków
 
             notesListBox.DisplayMember = "Title";
             RefreshNotesList();
+
+            _autosaveService = new AutosaveService<Note>(
+            jsonPath,
+            restorePath,
+            () => _repository.GetAll(),
+            (path, data) => _fileService.Save(path, data),15000);
+
+            _autosaveService.Start();
+
+            if (File.Exists(restorePath) && !_autosaveService.HasUnsavedChanges())
+                return;
+
+            if (File.Exists(restorePath))
+            {
+                var result = MessageBox.Show(
+                    "An autosaved session was found. Restore it?",
+                    "Restore session",
+                    MessageBoxButtons.YesNo
+                );
+
+                if (result == DialogResult.Yes)
+                {
+                    var restored = _fileService.Load(restorePath);
+                    _repository.Clear();
+                    foreach (var note in restored)
+                        _repository.Add(note);
+
+                    RefreshNotesList();
+                }
+            }
         }
         private void RefreshNotesList()
         {
