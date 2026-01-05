@@ -9,12 +9,14 @@ namespace Menedżer_notatek_i_rysunków.Persistence
         private readonly System.Windows.Forms.Timer _timer;
         private readonly string _mainPath;
         private readonly string _restorePath;
+        private readonly string _workBackup;
         private readonly Func<IEnumerable<T>> _getData;
         private readonly Action<string, IEnumerable<T>> _save;
 
         public AutosaveService(
             string mainPath,
             string restorePath,
+            string workBackup,
             Func<IEnumerable<T>> getData,
             Action<string, IEnumerable<T>> saveAction,
             int intervalMs)
@@ -23,6 +25,7 @@ namespace Menedżer_notatek_i_rysunków.Persistence
             _restorePath = restorePath;
             _getData = getData;
             _save = saveAction;
+            _workBackup = workBackup;
 
             _timer = new System.Windows.Forms.Timer();
             _timer.Interval = intervalMs;

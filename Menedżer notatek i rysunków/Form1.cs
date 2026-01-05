@@ -45,7 +45,8 @@ namespace Menedżer_notatek_i_rysunków
             jsonPath,
             restorePath,
             () => _repository.GetAll(),
-            (path, data) => _fileService.Save(path, data),15000);
+            (path, data) => _fileService.Save(path, data),
+            autoSave, 10000);
 
             _autosaveService.Start();
 
@@ -80,30 +81,20 @@ namespace Menedżer_notatek_i_rysunków
                 notesListBox.Items.Add(note);
             }
         }
-        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        private void Form1_FormClosing(object? sender, FormClosingEventArgs e)
         {
             _fileService.Save(jsonPath, _repository.GetAll());
+
+            if (File.Exists(restorePath))
+                File.Delete(restorePath);
+
+            _autosaveService.Dispose();
         }
+
 
         private void addButton_Click(object sender, EventArgs e)
         {
-            string title = Interaction.InputBox(
-                "Title:",
-                "Title"
-            ).Trim();
-
-            if (string.IsNullOrWhiteSpace(title))
-                return;
-
-            string content = noteTextBoxRich.Text.Trim();
-
-            var note = new Note(title, content);
-
-            _repository.Add(note);
-            RefreshNotesList();
-
-            notesListBox.SelectedItem = note;
-            noteTextBoxRich.Clear();
+            askSaveAs();
         }
 
 
@@ -137,15 +128,9 @@ namespace Menedżer_notatek_i_rysunków
             }
         }
 
-        private void editButton_Click(object sender, EventArgs e)
+        private void editButton_Click(object sender, EventArgs e) //Save button
         {
-            if (notesListBox.SelectedItem is not Note selectedNote)
-            {
-                MessageBox.Show("Select a note first.");
-                return;
-            }
-
-            selectedNote.UpdateText(noteTextBoxRich.Text);
+            applyEdit();
         }
 
         private void exportAsZipToolStripMenuItem_Click(object sender, EventArgs e)
@@ -243,8 +228,6 @@ namespace Menedżer_notatek_i_rysunków
             }
         }
 
-
-
         private void exportAsZipEncryptedToolStripMenuItem_Click(object sender, EventArgs e)
         {
             string password = Interaction.InputBox(
@@ -274,5 +257,54 @@ namespace Menedżer_notatek_i_rysunków
             }
             File.Delete(zipPath);
         }
+
+        private void applyEdit()
+        {
+            if (notesListBox.SelectedItem is not Note selectedNote)
+            {
+                askSaveAs();
+                return;
+            }
+                
+            selectedNote.UpdateText(noteTextBoxRich.Text);
+        }
+       
+        private void askSaveAs()
+        {
+            string title = Interaction.InputBox(
+                "Title:",
+                "Title"
+            ).Trim();
+
+            saveAs(title);
+        }
+        private void saveAs(string title)
+        {
+            if (string.IsNullOrWhiteSpace(title))
+                return;
+
+            string content = noteTextBoxRich.Text.Trim();
+
+            var note = new Note(title, content);
+
+            _repository.Add(note);
+            RefreshNotesList();
+
+            notesListBox.SelectedItem = note;
+            noteTextBoxRich.Clear();
+        }
+
+        private void autoSave()
+        {
+            if (notesListBox.SelectedItem is not Note selectedNote)
+            {
+                saveAs("temp");
+            }
+        }
+
+
     }
+
+
+
 }
