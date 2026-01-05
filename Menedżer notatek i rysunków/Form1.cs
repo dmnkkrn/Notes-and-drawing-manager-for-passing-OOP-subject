@@ -26,6 +26,7 @@ namespace Menedżer_notatek_i_rysunków
         string restorePath = "notes_restore.json";
         string zipPath = "notes_export.zip";
         string encPath = "notes_export.zip.enc";
+        string workBackupPath = "work_backup.json";
         public Form1(NoteRepository<Note> repository, NoteFileService fileService,
             ZipExportService zipService, EncryptionService encryptionService)
         {
@@ -44,33 +45,19 @@ namespace Menedżer_notatek_i_rysunków
             _autosaveService = new AutosaveService<Note>(
             jsonPath,
             restorePath,
-            () => _repository.GetAll(),
+            workBackupPath,
+            () =>
+            {
+                SaveWorkingNoteToBackup();
+                return _repository.GetAll();
+            },
             (path, data) => _fileService.Save(path, data),
-            autoSave, 10000);
+            1000
+            );
 
             _autosaveService.Start();
 
-            if (File.Exists(restorePath) && !_autosaveService.HasUnsavedChanges())
-                return;
-
-            if (File.Exists(restorePath))
-            {
-                var result = MessageBox.Show(
-                    "An autosaved session was found. Restore it?",
-                    "Restore session",
-                    MessageBoxButtons.YesNo
-                );
-
-                if (result == DialogResult.Yes)
-                {
-                    var restored = _fileService.Load(restorePath);
-                    _repository.Clear();
-                    foreach (var note in restored)
-                        _repository.Add(note);
-
-                    RefreshNotesList();
-                }
-            }
+            restore();
         }
         private void RefreshNotesList()
         {
@@ -83,12 +70,7 @@ namespace Menedżer_notatek_i_rysunków
         }
         private void Form1_FormClosing(object? sender, FormClosingEventArgs e)
         {
-            _fileService.Save(jsonPath, _repository.GetAll());
-
-            if (File.Exists(restorePath))
-                File.Delete(restorePath);
-
-            _autosaveService.Dispose();
+            onClose(e);
         }
 
 
@@ -294,17 +276,119 @@ namespace Menedżer_notatek_i_rysunków
             noteTextBoxRich.Clear();
         }
 
-        private void autoSave()
+        private void restore()
         {
-            if (notesListBox.SelectedItem is not Note selectedNote)
+            if (File.Exists(restorePath) && !_autosaveService.HasUnsavedChanges())
+                return;
+
+            if (File.Exists(restorePath))
             {
-                saveAs("temp");
+                var result = MessageBox.Show(
+                    "An autosaved session was found. Restore it?",
+                    "Restore session",
+                    MessageBoxButtons.YesNo
+                );
+
+                if (result == DialogResult.Yes)
+                {
+                    var restored = _fileService.Load(restorePath);
+                    _repository.Clear();
+                    foreach (var note in restored)
+                        _repository.Add(note);
+
+                    RefreshNotesList();
+                }
             }
+
+            if (File.Exists(workBackupPath))
+            {
+                var result = MessageBox.Show(
+                    "A working note was found. Restore it?",
+                    "Restore working note",
+                    MessageBoxButtons.YesNo
+                );
+
+                if (result == DialogResult.Yes)
+                {
+                    var work = _fileService.Load(workBackupPath).FirstOrDefault();
+                    if (work != null)
+                        noteTextBoxRich.Text = work.TextContent;
+                }
+            }
+
+        }
+        private void SaveWorkingNoteToBackup()
+        {
+            string text = noteTextBoxRich.Text;
+
+            if (string.IsNullOrWhiteSpace(text))
+                return;
+
+            Note tempNote = null;
+
+            if (File.Exists(workBackupPath))
+            {
+                var existing = _fileService.Load(workBackupPath);
+                tempNote = existing.FirstOrDefault();
+            }
+
+            if (tempNote == null)
+            {
+                tempNote = new Note("[WORKING_NOTE]", text);
+            }
+            else
+            {
+                tempNote.UpdateText(text);
+            }
+
+            _fileService.Save(workBackupPath, new List<Note> { tempNote });
         }
 
 
+
+        private void onClose(FormClosingEventArgs e)
+        {
+            askAboutWork(e);
+            _fileService.Save(jsonPath, _repository.GetAll());
+
+            if (File.Exists(restorePath))
+                File.Delete(restorePath);
+
+            _autosaveService.Dispose();
+        }
+
+        private void askAboutWork(FormClosingEventArgs e)
+        {
+            if (File.Exists(workBackupPath))
+            {
+                var result = MessageBox.Show(
+                    "Do you want to save the working note?",
+                    "Unsaved work",
+                    MessageBoxButtons.YesNoCancel
+                );
+            if (result == DialogResult.Cancel)
+                {
+                    e.Cancel = true;
+                    return;
+                }
+
+                if (result == DialogResult.Yes)
+                {
+                    if (notesListBox.SelectedItem is not null)
+                    {
+                        applyEdit();
+                    }
+                    else
+                    {
+                        askSaveAs();
+                    }
+                }
+                File.Delete(workBackupPath);
+            }
+        }
     }
-
-
-
 }
+
+
+
+

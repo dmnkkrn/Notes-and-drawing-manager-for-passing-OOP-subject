@@ -34,7 +34,8 @@ namespace Menedżer_notatek_i_rysunków.Persistence
 
         private void OnTick(object sender, EventArgs e)
         {
-            _save(_restorePath, _getData());
+            var data = _getData();
+            _save(_restorePath, data);
         }
 
         public void Start() => _timer.Start();
