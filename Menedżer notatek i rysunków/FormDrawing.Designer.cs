@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             pictureBox1 = new PictureBox();
+            clearButton = new Button();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             SuspendLayout();
             // 
@@ -40,11 +41,22 @@
             pictureBox1.TabIndex = 0;
             pictureBox1.TabStop = false;
             // 
+            // clearButton
+            // 
+            clearButton.Location = new Point(564, 363);
+            clearButton.Name = "clearButton";
+            clearButton.Size = new Size(224, 39);
+            clearButton.TabIndex = 1;
+            clearButton.Text = "Clear";
+            clearButton.UseVisualStyleBackColor = true;
+            clearButton.Click += clearButton_Click;
+            // 
             // FormDrawing
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
+            Controls.Add(clearButton);
             Controls.Add(pictureBox1);
             Name = "FormDrawing";
             Text = "Drawing";
@@ -55,5 +67,6 @@
         #endregion
 
         private PictureBox pictureBox1;
+        private Button clearButton;
     }
 }

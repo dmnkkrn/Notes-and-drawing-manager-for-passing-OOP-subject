@@ -86,8 +86,10 @@ namespace Menedżer_notatek_i_rysunków
             base.OnFormClosing(e);
         }
 
-
-
-
+        private void clearButton_Click(object sender, EventArgs e)
+        {
+            _graphics.Clear(Color.White);
+            pictureBox1.Invalidate();
+        }
     }
 }
