@@ -27,6 +27,7 @@ namespace Menedżer_notatek_i_rysunków
         string zipPath = "notes_export.zip";
         string encPath = "notes_export.zip.enc";
         string workBackupPath = "work_backup.json";
+        string drawingsDir = "drawings";
         public Form1(NoteRepository<Note> repository, NoteFileService fileService,
             ZipExportService zipService, EncryptionService encryptionService)
         {
@@ -247,10 +248,10 @@ namespace Menedżer_notatek_i_rysunków
                 askSaveAs();
                 return;
             }
-                
+
             selectedNote.UpdateText(noteTextBoxRich.Text);
         }
-       
+
         private void askSaveAs()
         {
             string title = Interaction.InputBox(
@@ -324,6 +325,12 @@ namespace Menedżer_notatek_i_rysunków
             if (string.IsNullOrWhiteSpace(text))
                 return;
 
+            if (notesListBox.SelectedItem is Note selectedNote)
+            {
+                if (text == selectedNote.TextContent)
+                    return;
+            }
+
             Note tempNote = null;
 
             if (File.Exists(workBackupPath))
@@ -343,6 +350,7 @@ namespace Menedżer_notatek_i_rysunków
 
             _fileService.Save(workBackupPath, new List<Note> { tempNote });
         }
+
 
 
 
@@ -366,7 +374,7 @@ namespace Menedżer_notatek_i_rysunków
                     "Unsaved work",
                     MessageBoxButtons.YesNoCancel
                 );
-            if (result == DialogResult.Cancel)
+                if (result == DialogResult.Cancel)
                 {
                     e.Cancel = true;
                     return;
@@ -386,6 +394,32 @@ namespace Menedżer_notatek_i_rysunków
                 File.Delete(workBackupPath);
             }
         }
+
+        private void drawButton_Click(object sender, EventArgs e)
+        {
+            if (notesListBox.SelectedItem is not Note selectedNote)
+            {
+                MessageBox.Show("Select a note first.");
+                return;
+            }
+
+            if (!Directory.Exists(drawingsDir))
+                Directory.CreateDirectory(drawingsDir);
+
+            if (selectedNote.Drawing == null)
+            {
+                string path = Path.Combine(
+                    drawingsDir,
+                    $"{selectedNote.Id}.png"
+                );
+
+                selectedNote.AttachDrawing(new Drawing(path));
+            }
+
+            using var form = new FormDrawing(selectedNote.Drawing.ImagePath);
+            form.ShowDialog();
+        }
+
     }
 }
 

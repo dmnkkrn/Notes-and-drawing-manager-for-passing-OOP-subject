@@ -35,10 +35,11 @@
             settingsToolStripMenuItem = new ToolStripMenuItem();
             exportImportToolStripMenuItem = new ToolStripMenuItem();
             exportAsZipToolStripMenuItem = new ToolStripMenuItem();
+            exportAsZipEncryptedToolStripMenuItem = new ToolStripMenuItem();
             importZipToolStripMenuItem = new ToolStripMenuItem();
             noteTextBoxRich = new RichTextBox();
             editButton = new Button();
-            exportAsZipEncryptedToolStripMenuItem = new ToolStripMenuItem();
+            drawButton = new Button();
             menuStrip1.SuspendLayout();
             SuspendLayout();
             // 
@@ -101,6 +102,13 @@
             exportAsZipToolStripMenuItem.Text = "Export as Zip";
             exportAsZipToolStripMenuItem.Click += exportAsZipToolStripMenuItem_Click;
             // 
+            // exportAsZipEncryptedToolStripMenuItem
+            // 
+            exportAsZipEncryptedToolStripMenuItem.Name = "exportAsZipEncryptedToolStripMenuItem";
+            exportAsZipEncryptedToolStripMenuItem.Size = new Size(259, 26);
+            exportAsZipEncryptedToolStripMenuItem.Text = "Export as Zip (Encrypted)";
+            exportAsZipEncryptedToolStripMenuItem.Click += exportAsZipEncryptedToolStripMenuItem_Click;
+            // 
             // importZipToolStripMenuItem
             // 
             importZipToolStripMenuItem.Name = "importZipToolStripMenuItem";
@@ -126,18 +134,22 @@
             editButton.UseVisualStyleBackColor = true;
             editButton.Click += editButton_Click;
             // 
-            // exportAsZipEncryptedToolStripMenuItem
+            // drawButton
             // 
-            exportAsZipEncryptedToolStripMenuItem.Name = "exportAsZipEncryptedToolStripMenuItem";
-            exportAsZipEncryptedToolStripMenuItem.Size = new Size(259, 26);
-            exportAsZipEncryptedToolStripMenuItem.Text = "Export as Zip (Encrypted)";
-            exportAsZipEncryptedToolStripMenuItem.Click += exportAsZipEncryptedToolStripMenuItem_Click;
+            drawButton.Location = new Point(396, 445);
+            drawButton.Name = "drawButton";
+            drawButton.Size = new Size(172, 29);
+            drawButton.TabIndex = 6;
+            drawButton.Text = "Draw";
+            drawButton.UseVisualStyleBackColor = true;
+            drawButton.Click += drawButton_Click;
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
+            ClientSize = new Size(800, 484);
+            Controls.Add(drawButton);
             Controls.Add(editButton);
             Controls.Add(noteTextBoxRich);
             Controls.Add(addButton);
@@ -166,5 +178,6 @@
         private ToolStripMenuItem exportAsZipToolStripMenuItem;
         private ToolStripMenuItem importZipToolStripMenuItem;
         private ToolStripMenuItem exportAsZipEncryptedToolStripMenuItem;
+        private Button drawButton;
     }
 }
