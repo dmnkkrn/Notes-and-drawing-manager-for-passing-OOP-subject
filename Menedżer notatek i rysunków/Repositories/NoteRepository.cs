@@ -1,21 +1,11 @@
-﻿////using System;
+﻿using Menedżer_notatek_i_rysunków.Models;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Menedżer_notatek_i_rysunków.Repositories
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-
-    public class NoteRepository<T>
+    public class NoteRepository<T> where T : Note
     {
-        private readonly List<T> _items;
-
-        public NoteRepository()
-        {
-            _items = new List<T>();
-        }
+        private readonly List<T> _items = new();
 
         public void Add(T item)
         {
@@ -36,6 +26,25 @@ namespace Menedżer_notatek_i_rysunków.Repositories
         {
             _items.Clear();
         }
-    }
 
+        public void SortAscending()
+        {
+            _items.Sort((a, b) =>
+            {
+                if (a < b) return -1;
+                if (a > b) return 1;
+                return 0;
+            });
+        }
+
+        public void SortDescending()
+        {
+            _items.Sort((a, b) =>
+            {
+                if (a > b) return -1;
+                if (a < b) return 1;
+                return 0;
+            });
+        }
+    }
 }

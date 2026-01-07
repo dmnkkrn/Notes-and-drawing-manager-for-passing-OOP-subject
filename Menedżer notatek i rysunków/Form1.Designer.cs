@@ -41,6 +41,8 @@
             editButton = new Button();
             drawButton = new Button();
             pictureBoxPreview = new PictureBox();
+            buttonSortAsc = new Button();
+            buttonSortDesc = new Button();
             menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBoxPreview).BeginInit();
             SuspendLayout();
@@ -48,9 +50,9 @@
             // notesListBox
             // 
             notesListBox.FormattingEnabled = true;
-            notesListBox.Location = new Point(574, 14);
+            notesListBox.Location = new Point(575, 66);
             notesListBox.Name = "notesListBox";
-            notesListBox.Size = new Size(214, 324);
+            notesListBox.Size = new Size(214, 244);
             notesListBox.TabIndex = 0;
             notesListBox.SelectedIndexChanged += notesListBox_SelectedIndexChanged;
             // 
@@ -157,11 +159,33 @@
             pictureBoxPreview.TabStop = false;
             pictureBoxPreview.Click += pictureBoxPreview_Click;
             // 
+            // buttonSortAsc
+            // 
+            buttonSortAsc.Location = new Point(575, 31);
+            buttonSortAsc.Name = "buttonSortAsc";
+            buttonSortAsc.Size = new Size(51, 29);
+            buttonSortAsc.TabIndex = 8;
+            buttonSortAsc.Text = "Asc";
+            buttonSortAsc.UseVisualStyleBackColor = true;
+            buttonSortAsc.Click += buttonSortAsc_Click;
+            // 
+            // buttonSortDesc
+            // 
+            buttonSortDesc.Location = new Point(632, 31);
+            buttonSortDesc.Name = "buttonSortDesc";
+            buttonSortDesc.Size = new Size(51, 29);
+            buttonSortDesc.TabIndex = 9;
+            buttonSortDesc.Text = "Desc";
+            buttonSortDesc.UseVisualStyleBackColor = true;
+            buttonSortDesc.Click += buttonSortDesc_Click;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 484);
+            Controls.Add(buttonSortDesc);
+            Controls.Add(buttonSortAsc);
             Controls.Add(pictureBoxPreview);
             Controls.Add(drawButton);
             Controls.Add(editButton);
@@ -195,5 +219,7 @@
         private ToolStripMenuItem exportAsZipEncryptedToolStripMenuItem;
         private Button drawButton;
         private PictureBox pictureBoxPreview;
+        private Button buttonSortAsc;
+        private Button buttonSortDesc;
     }
 }

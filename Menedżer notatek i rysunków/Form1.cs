@@ -450,6 +450,17 @@ namespace Menedżer_notatek_i_rysunków
             }
         }
 
+        private void buttonSortAsc_Click(object sender, EventArgs e)
+        {
+            _repository.SortAscending();
+            RefreshNotesList();
+        }
+
+        private void buttonSortDesc_Click(object sender, EventArgs e)
+        {
+            _repository.SortDescending();
+            RefreshNotesList();
+        }
     }
 }
 
