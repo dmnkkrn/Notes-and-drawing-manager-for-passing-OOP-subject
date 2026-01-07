@@ -104,10 +104,12 @@ namespace Menedżer_notatek_i_rysunków
             if (notesListBox.SelectedItem is Note selectedNote)
             {
                 noteTextBoxRich.Text = selectedNote.TextContent;
+                ShowDrawingPreview(selectedNote);
             }
             else
             {
                 noteTextBoxRich.Clear();
+                pictureBoxPreview.Image = null;
             }
         }
 
@@ -418,6 +420,34 @@ namespace Menedżer_notatek_i_rysunków
 
             using var form = new FormDrawing(selectedNote.Drawing.ImagePath);
             form.ShowDialog();
+            ShowDrawingPreview(selectedNote);
+        }
+
+        private void pictureBoxPreview_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void ShowDrawingPreview(Note note)
+        {
+            if (note.Drawing == null || string.IsNullOrWhiteSpace(note.Drawing.ImagePath))
+            {
+                pictureBoxPreview.Image = null;
+                return;
+            }
+
+            if (!File.Exists(note.Drawing.ImagePath))
+            {
+                pictureBoxPreview.Image = null;
+                return;
+            }
+
+            using (var fs = new FileStream(note.Drawing.ImagePath, FileMode.Open, FileAccess.Read))
+            using (var temp = new Bitmap(fs))
+            {
+                pictureBoxPreview.Image?.Dispose();
+                pictureBoxPreview.Image = new Bitmap(temp);
+            }
         }
 
     }

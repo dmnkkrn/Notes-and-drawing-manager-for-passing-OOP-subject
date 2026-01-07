@@ -84,6 +84,7 @@ namespace Menedżer_notatek_i_rysunków
             _bitmap.Dispose();
 
             base.OnFormClosing(e);
+            
         }
 
         private void clearButton_Click(object sender, EventArgs e)

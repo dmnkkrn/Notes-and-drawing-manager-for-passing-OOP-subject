@@ -40,7 +40,9 @@
             noteTextBoxRich = new RichTextBox();
             editButton = new Button();
             drawButton = new Button();
+            pictureBoxPreview = new PictureBox();
             menuStrip1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxPreview).BeginInit();
             SuspendLayout();
             // 
             // notesListBox
@@ -48,7 +50,7 @@
             notesListBox.FormattingEnabled = true;
             notesListBox.Location = new Point(574, 14);
             notesListBox.Name = "notesListBox";
-            notesListBox.Size = new Size(214, 424);
+            notesListBox.Size = new Size(214, 324);
             notesListBox.TabIndex = 0;
             notesListBox.SelectedIndexChanged += notesListBox_SelectedIndexChanged;
             // 
@@ -136,7 +138,7 @@
             // 
             // drawButton
             // 
-            drawButton.Location = new Point(396, 445);
+            drawButton.Location = new Point(40, 443);
             drawButton.Name = "drawButton";
             drawButton.Size = new Size(172, 29);
             drawButton.TabIndex = 6;
@@ -144,11 +146,23 @@
             drawButton.UseVisualStyleBackColor = true;
             drawButton.Click += drawButton_Click;
             // 
+            // pictureBoxPreview
+            // 
+            pictureBoxPreview.BorderStyle = BorderStyle.FixedSingle;
+            pictureBoxPreview.Location = new Point(575, 344);
+            pictureBoxPreview.Name = "pictureBoxPreview";
+            pictureBoxPreview.Size = new Size(213, 130);
+            pictureBoxPreview.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxPreview.TabIndex = 7;
+            pictureBoxPreview.TabStop = false;
+            pictureBoxPreview.Click += pictureBoxPreview_Click;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 484);
+            Controls.Add(pictureBoxPreview);
             Controls.Add(drawButton);
             Controls.Add(editButton);
             Controls.Add(noteTextBoxRich);
@@ -161,6 +175,7 @@
             Text = "Save";
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxPreview).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -179,5 +194,6 @@
         private ToolStripMenuItem importZipToolStripMenuItem;
         private ToolStripMenuItem exportAsZipEncryptedToolStripMenuItem;
         private Button drawButton;
+        private PictureBox pictureBoxPreview;
     }
 }
