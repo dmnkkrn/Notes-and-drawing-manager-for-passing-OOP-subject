@@ -122,9 +122,7 @@ namespace Menedżer_notatek_i_rysunków
         {
             try
             {
-                _fileService.Save(jsonPath, _repository.GetAll());
-                _zipService.ExportJsonToZip(jsonPath, zipPath);
-
+                _zipService.ExportNotesToZip(_repository.GetAll(), _fileService, jsonPath, zipPath);
                 MessageBox.Show("Export completed.");
             }
             catch (Exception ex)
@@ -145,56 +143,21 @@ namespace Menedżer_notatek_i_rysunków
 
             string selectedPath = dialog.FileName;
 
-            string workDir = Path.Combine(
-                Path.GetTempPath(),
-                "NaDM_Work_" + Guid.NewGuid()
-            );
-
-            string extractDir = Path.Combine(workDir, "extract");
-
-            Directory.CreateDirectory(workDir);
-            Directory.CreateDirectory(extractDir);
-
-            string zipToImport;
-
             try
             {
+                string? password = null;
                 if (_encryptionService.IsEncrypted(selectedPath))
                 {
-                    string password = Interaction.InputBox(
+                    password = Interaction.InputBox(
                         "Password:",
                         "Encrypted import"
                     );
 
                     if (string.IsNullOrWhiteSpace(password))
                         return;
-
-                    zipToImport = Path.Combine(
-                        workDir,
-                        Path.GetFileName(selectedPath).Replace(".enc", "")
-                    );
-
-                    _encryptionService.DecryptFile(
-                        selectedPath,
-                        zipToImport,
-                        password
-                    );
-                }
-                else
-                {
-                    zipToImport = selectedPath;
                 }
 
-                _zipService.ImportZip(zipToImport, extractDir);
-
-                string importedJsonPath = Path.Combine(extractDir, "notes.json");
-                if (!File.Exists(importedJsonPath))
-                {
-                    MessageBox.Show("notes.json not found.");
-                    return;
-                }
-
-                var notes = _fileService.Load(importedJsonPath);
+                var notes = _zipService.ImportNotesFromZip(selectedPath, _fileService, _encryptionService, password);
 
                 _repository.Clear();
                 foreach (var note in notes)
@@ -225,22 +188,13 @@ namespace Menedżer_notatek_i_rysunków
 
             try
             {
-                _fileService.Save(jsonPath, _repository.GetAll());
-                _zipService.ExportJsonToZip(jsonPath, zipPath);
-
-                _encryptionService.EncryptFile(
-                    zipPath,
-                    encPath,
-                    password
-                );
-
+                _zipService.ExportNotesToEncryptedZip(_repository.GetAll(), _fileService, jsonPath, zipPath, encPath, _encryptionService, password);
                 MessageBox.Show("Encrypted export completed.");
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Export failed: " + ex.Message);
             }
-            File.Delete(zipPath);
         }
 
         private void applyEdit()
@@ -352,9 +306,6 @@ namespace Menedżer_notatek_i_rysunków
 
             _fileService.Save(workBackupPath, new List<Note> { tempNote });
         }
-
-
-
 
         private void onClose(FormClosingEventArgs e)
         {
