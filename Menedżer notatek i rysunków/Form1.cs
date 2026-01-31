@@ -2,6 +2,7 @@
 using Menedżer_notatek_i_rysunków.Persistence;
 using Menedżer_notatek_i_rysunków.Persistence.Security;
 using Menedżer_notatek_i_rysunków.Repositories;
+using Menedżer_notatek_i_rysunków.Services;
 using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
@@ -19,24 +20,26 @@ namespace Menedżer_notatek_i_rysunków
         private NoteFileService _fileService;
         private ZipExportService _zipService;
         private EncryptionService _encryptionService;
+        private DrawingService _drawingService;
 
         private AutosaveService<Note> _autosaveService;
 
-        string jsonPath = "notes.json";
-        string restorePath = "notes_restore.json";
-        string zipPath = "notes_export.zip";
-        string encPath = "notes_export.zip.enc";
-        string workBackupPath = "work_backup.json";
-        string drawingsDir = "drawings";
+        string jsonPath = FileStrings.jsonPath;
+        string restorePath = FileStrings.restorePath;
+        string zipPath = FileStrings.zipPath;
+        string encPath = FileStrings.encPath;
+        string workBackupPath = FileStrings.workBackupPath;
+        string drawingsDir = FileStrings.drawingsDir;
+
         public Form1(NoteRepository<Note> repository, NoteFileService fileService,
-            ZipExportService zipService, EncryptionService encryptionService)
+            ZipExportService zipService, EncryptionService encryptionService, DrawingService drawingService)
         {
             InitializeComponent();
             _repository = repository;
             _fileService = fileService;
             _zipService = zipService;
             _encryptionService = encryptionService;
-
+            _drawingService = drawingService;
 
             this.FormClosing += Form1_FormClosing;
 
@@ -69,7 +72,7 @@ namespace Menedżer_notatek_i_rysunków
                 notesListBox.Items.Add(note);
             }
         }
-        private void Form1_FormClosing(object? sender, FormClosingEventArgs e)
+        private void Form1_FormClosing(object? sender, FormClosingEventArgs e)      
         {
             onClose(e);
         }
@@ -94,7 +97,9 @@ namespace Menedżer_notatek_i_rysunków
                 if (result == DialogResult.Yes)
                 {
                     _repository.Remove(selectedNote);
+                    _drawingService.DeleteDrawingForNote(selectedNote.Id);
                     RefreshNotesList();
+                    pictureBoxPreview.Image = null;
                 }
             }
         }
@@ -356,20 +361,15 @@ namespace Menedżer_notatek_i_rysunków
                 return;
             }
 
-            if (!Directory.Exists(drawingsDir))
-                Directory.CreateDirectory(drawingsDir);
+            _drawingService.EnsureDirectoryExists();
 
             if (selectedNote.Drawing == null)
             {
-                string path = Path.Combine(
-                    drawingsDir,
-                    $"{selectedNote.Id}.png"
-                );
-
+                string path = _drawingService.GetDrawingPathForNote(selectedNote.Id);
                 selectedNote.AttachDrawing(new Drawing(path));
             }
 
-            using var form = new FormDrawing(selectedNote.Drawing.ImagePath);
+            using var form = new FormDrawing(selectedNote.Drawing.ImagePath, _drawingService);
             form.ShowDialog();
             ShowDrawingPreview(selectedNote);
         }
@@ -387,18 +387,15 @@ namespace Menedżer_notatek_i_rysunków
                 return;
             }
 
-            if (!File.Exists(note.Drawing.ImagePath))
+            var bmp = _drawingService.LoadBitmapCopy(note.Drawing.ImagePath);
+            if (bmp == null)
             {
                 pictureBoxPreview.Image = null;
                 return;
             }
 
-            using (var fs = new FileStream(note.Drawing.ImagePath, FileMode.Open, FileAccess.Read))
-            using (var temp = new Bitmap(fs))
-            {
-                pictureBoxPreview.Image?.Dispose();
-                pictureBoxPreview.Image = new Bitmap(temp);
-            }
+            pictureBoxPreview.Image?.Dispose();
+            pictureBoxPreview.Image = bmp;
         }
 
         private void buttonSortAsc_Click(object sender, EventArgs e)

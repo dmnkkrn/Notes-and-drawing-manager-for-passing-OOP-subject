@@ -38,7 +38,6 @@ namespace Menedżer_notatek_i_rysunków.Persistence
             ZipFile.ExtractToDirectory(zipPath, extractDirectory);
         }
 
-        // High-level helpers that encapsulate zip/encryption/temp-dir logic
         public void ExportNotesToZip(IEnumerable<Note> notes, NoteFileService fileService, string jsonPath, string zipPath)
         {
             if (notes == null) throw new ArgumentNullException(nameof(notes));
@@ -63,11 +62,11 @@ namespace Menedżer_notatek_i_rysunków.Persistence
                 encryptionService.EncryptFile(zipPath, encPath, password);
             }
             finally
+            
             {
-                // remove intermediate plain zip if it still exists
                 if (File.Exists(zipPath))
                 {
-                    try { File.Delete(zipPath); } catch { /* swallow cleanup errors */ }
+                    try { File.Delete(zipPath); } catch {  }
                 }
             }
         }
@@ -110,7 +109,7 @@ namespace Menedżer_notatek_i_rysunków.Persistence
             }
             finally
             {
-                // cleanup temp directory
+                
                 try
                 {
                     if (Directory.Exists(workDir))
@@ -118,7 +117,7 @@ namespace Menedżer_notatek_i_rysunków.Persistence
                 }
                 catch
                 {
-                    // swallow cleanup exceptions
+                   
                 }
             }
         }

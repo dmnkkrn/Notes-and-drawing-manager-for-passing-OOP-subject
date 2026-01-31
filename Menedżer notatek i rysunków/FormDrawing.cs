@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
+﻿using Menedżer_notatek_i_rysunków.Services;
+using System;
 using System.Drawing;
-using System.Text;
+using System.IO;
 using System.Windows.Forms;
 
 namespace Menedżer_notatek_i_rysunków
@@ -16,8 +14,9 @@ namespace Menedżer_notatek_i_rysunków
         private bool _isDrawing;
         private Point _lastPoint;
         private readonly string _imagePath;
+        private readonly DrawingService _drawingService;
 
-        public FormDrawing(string imagePath)
+        public FormDrawing(string imagePath, DrawingService drawingService)
         {
             InitializeComponent();
 
@@ -26,20 +25,16 @@ namespace Menedżer_notatek_i_rysunków
             pictureBox1.MouseUp += pictureBox1_MouseUp;
 
             _imagePath = imagePath;
+            _drawingService = drawingService;
 
-            if (File.Exists(_imagePath))
+            var loaded = _drawingService.LoadBitmapCopy(_imagePath);
+            if (loaded != null)
             {
-                using (var fs = new FileStream(_imagePath, FileMode.Open, FileAccess.Read))
-                using (var temp = new Bitmap(fs))
-                {
-                    _bitmap = new Bitmap(temp);
-                }
+                _bitmap = loaded;
             }
             else
             {
-                _bitmap = new Bitmap(800, 600);
-                using var g = Graphics.FromImage(_bitmap);
-                g.Clear(Color.White);
+                _bitmap = _drawingService.CreateBlankBitmap(800, 600);
             }
 
             _graphics = Graphics.FromImage(_bitmap);
@@ -74,13 +69,8 @@ namespace Menedżer_notatek_i_rysunków
             _graphics.Dispose();
             _graphics = null;
 
-            var dir = Path.GetDirectoryName(_imagePath);
-            if (!string.IsNullOrEmpty(dir))
-            {
-                Directory.CreateDirectory(dir);
-            }
-
-            _bitmap.Save(_imagePath, System.Drawing.Imaging.ImageFormat.Png);
+            
+            _drawingService.SaveBitmap(_imagePath, _bitmap);
             _bitmap.Dispose();
 
             base.OnFormClosing(e);
