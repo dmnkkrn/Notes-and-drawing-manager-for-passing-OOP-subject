@@ -7,7 +7,7 @@ using Menedżer_notatek_i_rysunków.Persistence.Security;
 
 namespace Menedżer_notatek_i_rysunków.Persistence
 {
-    public class ZipExportService : IZipExportService
+    public class ZipExportService : IZipExportService 
     {   
         public void ExportJsonToZip(string jsonPath, string zipPath)
         {
@@ -47,7 +47,7 @@ namespace Menedżer_notatek_i_rysunków.Persistence
             ExportJsonToZip(jsonPath, zipPath);
         }
 
-        public void ExportNotesToEncryptedZip(IEnumerable<Note> notes, INoteFileService fileService, string jsonPath, string zipPath, string encPath, EncryptionService encryptionService, string password)
+        public void ExportNotesToEncryptedZip(IEnumerable<Note> notes, INoteFileService fileService, string jsonPath, string zipPath, string encPath, IEncryptionService encryptionService, string password)
         {
             if (notes == null) throw new ArgumentNullException(nameof(notes));
             if (fileService == null) throw new ArgumentNullException(nameof(fileService));
@@ -70,7 +70,7 @@ namespace Menedżer_notatek_i_rysunków.Persistence
             }
         }
 
-        public List<Note> ImportNotesFromZip(string selectedPath, INoteFileService fileService, EncryptionService encryptionService, string? password = null)
+        public List<Note> ImportNotesFromZip(string selectedPath, INoteFileService fileService, IEncryptionService encryptionService, string? password = null)
         {
             if (string.IsNullOrWhiteSpace(selectedPath)) throw new ArgumentNullException(nameof(selectedPath));
             if (fileService == null) throw new ArgumentNullException(nameof(fileService));

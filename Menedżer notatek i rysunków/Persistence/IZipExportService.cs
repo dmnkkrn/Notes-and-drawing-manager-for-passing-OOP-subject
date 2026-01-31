@@ -11,8 +11,8 @@ namespace Menedżer_notatek_i_rysunków.Persistence
         void ExportJsonToZip(string jsonPath, string zipPath);
         void ImportZip(string zipPath, string extractDirectory);
         void ExportNotesToZip(IEnumerable<Models.Note> notes, INoteFileService fileService, string jsonPath, string zipPath);
-        void ExportNotesToEncryptedZip(IEnumerable<Models.Note> notes, INoteFileService fileService, string jsonPath, string zipPath, string encPath, Security.EncryptionService encryptionService, string password);
+        void ExportNotesToEncryptedZip(IEnumerable<Models.Note> notes, INoteFileService fileService, string jsonPath, string zipPath, string encPath, IEncryptionService encryptionService, string password);
 
-        List<Note> ImportNotesFromZip(string selectedPath, INoteFileService fileService, EncryptionService encryptionService, string? password = null);
+        List<Note> ImportNotesFromZip(string selectedPath, INoteFileService fileService, IEncryptionService encryptionService, string? password = null);
     }
 }

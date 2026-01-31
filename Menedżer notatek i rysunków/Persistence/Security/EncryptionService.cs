@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Menedżer_notatek_i_rysunków.Persistence.Security
 {
-    public class EncryptionService
+    public class EncryptionService : IEncryptionService
     {
         private const string Header = "ENCNaDM01";
         private const int KeySize = 256;
