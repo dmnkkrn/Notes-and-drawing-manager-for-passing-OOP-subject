@@ -5,7 +5,7 @@ using Menedżer_notatek_i_rysunków.Models;
 
 namespace Menedżer_notatek_i_rysunków.Persistence
 {
-    public class NoteFileService
+    public class NoteFileService : INoteFileService
     {
         private readonly JsonSerializerOptions _options =
             new JsonSerializerOptions

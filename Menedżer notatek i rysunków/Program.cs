@@ -19,7 +19,7 @@ namespace Menedżer_notatek_i_rysunków
             // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
 
-            var fileService = new NoteFileService();
+            INoteFileService fileService = new NoteFileService();
             var notes = fileService.Load("notes.json");
             var zipService = new ZipExportService();
             var encryptionService = new EncryptionService();

@@ -38,7 +38,7 @@ namespace Menedżer_notatek_i_rysunków.Persistence
             ZipFile.ExtractToDirectory(zipPath, extractDirectory);
         }
 
-        public void ExportNotesToZip(IEnumerable<Note> notes, NoteFileService fileService, string jsonPath, string zipPath)
+        public void ExportNotesToZip(IEnumerable<Note> notes, INoteFileService fileService, string jsonPath, string zipPath)
         {
             if (notes == null) throw new ArgumentNullException(nameof(notes));
             if (fileService == null) throw new ArgumentNullException(nameof(fileService));
@@ -47,7 +47,7 @@ namespace Menedżer_notatek_i_rysunków.Persistence
             ExportJsonToZip(jsonPath, zipPath);
         }
 
-        public void ExportNotesToEncryptedZip(IEnumerable<Note> notes, NoteFileService fileService, string jsonPath, string zipPath, string encPath, EncryptionService encryptionService, string password)
+        public void ExportNotesToEncryptedZip(IEnumerable<Note> notes, INoteFileService fileService, string jsonPath, string zipPath, string encPath, EncryptionService encryptionService, string password)
         {
             if (notes == null) throw new ArgumentNullException(nameof(notes));
             if (fileService == null) throw new ArgumentNullException(nameof(fileService));
@@ -62,16 +62,15 @@ namespace Menedżer_notatek_i_rysunków.Persistence
                 encryptionService.EncryptFile(zipPath, encPath, password);
             }
             finally
-            
             {
                 if (File.Exists(zipPath))
                 {
-                    try { File.Delete(zipPath); } catch {  }
+                    try { File.Delete(zipPath); } catch { }
                 }
             }
         }
 
-        public List<Note> ImportNotesFromZip(string selectedPath, NoteFileService fileService, EncryptionService encryptionService, string? password = null)
+        public List<Note> ImportNotesFromZip(string selectedPath, INoteFileService fileService, EncryptionService encryptionService, string? password = null)
         {
             if (string.IsNullOrWhiteSpace(selectedPath)) throw new ArgumentNullException(nameof(selectedPath));
             if (fileService == null) throw new ArgumentNullException(nameof(fileService));
@@ -84,7 +83,7 @@ namespace Menedżer_notatek_i_rysunków.Persistence
             Directory.CreateDirectory(extractDir);
 
             string zipToImport = selectedPath;
-            string tempZipPath = null;
+            string? tempZipPath = null;
 
             try
             {
@@ -109,16 +108,12 @@ namespace Menedżer_notatek_i_rysunków.Persistence
             }
             finally
             {
-                
                 try
                 {
                     if (Directory.Exists(workDir))
                         Directory.Delete(workDir, true);
                 }
-                catch
-                {
-                   
-                }
+                catch { }
             }
         }
     }

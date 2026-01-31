@@ -17,7 +17,7 @@ namespace Menedżer_notatek_i_rysunków
     public partial class Form1 : Form
     {
         private NoteRepository<Note> _repository;
-        private NoteFileService _fileService;
+        private INoteFileService _fileService;
         private ZipExportService _zipService;
         private EncryptionService _encryptionService;
         private DrawingService _drawingService;
@@ -31,7 +31,7 @@ namespace Menedżer_notatek_i_rysunków
         string workBackupPath = FileStrings.workBackupPath;
         string drawingsDir = FileStrings.drawingsDir;
 
-        public Form1(NoteRepository<Note> repository, NoteFileService fileService,
+        public Form1(NoteRepository<Note> repository, INoteFileService fileService,
             ZipExportService zipService, EncryptionService encryptionService, DrawingService drawingService)
         {
             InitializeComponent();
@@ -411,6 +411,9 @@ namespace Menedżer_notatek_i_rysunków
         }
     }
 }
+
+
+
 
 
 
