@@ -7,7 +7,7 @@ using Menedżer_notatek_i_rysunków.Persistence.Security;
 
 namespace Menedżer_notatek_i_rysunków.Persistence
 {
-    public class ZipExportService
+    public class ZipExportService : IZipExportService
     {   
         public void ExportJsonToZip(string jsonPath, string zipPath)
         {

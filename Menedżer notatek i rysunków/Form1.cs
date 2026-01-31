@@ -18,7 +18,7 @@ namespace Menedżer_notatek_i_rysunków
     {
         private NoteRepository<Note> _repository;
         private INoteFileService _fileService;
-        private ZipExportService _zipService;
+        private IZipExportService _zipService;
         private EncryptionService _encryptionService;
         private DrawingService _drawingService;
 
@@ -32,7 +32,7 @@ namespace Menedżer_notatek_i_rysunków
         string drawingsDir = FileStrings.drawingsDir;
 
         public Form1(NoteRepository<Note> repository, INoteFileService fileService,
-            ZipExportService zipService, EncryptionService encryptionService, DrawingService drawingService)
+            IZipExportService zipService, EncryptionService encryptionService, DrawingService drawingService)
         {
             InitializeComponent();
             _repository = repository;

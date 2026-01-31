@@ -21,7 +21,7 @@ namespace Menedżer_notatek_i_rysunków
 
             INoteFileService fileService = new NoteFileService();
             var notes = fileService.Load("notes.json");
-            var zipService = new ZipExportService();
+            IZipExportService zipService = new ZipExportService();
             var encryptionService = new EncryptionService();
 
             var repo = new NoteRepository<Note>();
