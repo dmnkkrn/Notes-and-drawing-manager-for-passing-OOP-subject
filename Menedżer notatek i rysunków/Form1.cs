@@ -43,8 +43,8 @@ namespace Menedżer_notatek_i_rysunków
 
             this.FormClosing += Form1_FormClosing;
 
-            notesListBox.DisplayMember = "Title";
-            RefreshNotesList();
+            
+            notesListBox.DisplayMember = "ListDisplay";RefreshNotesList();
 
             _autosaveService = new AutosaveService<Note>(
             jsonPath,
