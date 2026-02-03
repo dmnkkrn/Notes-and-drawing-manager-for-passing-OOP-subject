@@ -24,39 +24,40 @@ namespace Menedżer_notatek_i_rysunków
 
         private AutosaveService<Note> _autosaveService;
 
-        string jsonPath = FileStrings.jsonPath;
-        string restorePath = FileStrings.restorePath;
-        string zipPath = FileStrings.zipPath;
-        string encPath = FileStrings.encPath;
-        string workBackupPath = FileStrings.workBackupPath;
-        string drawingsDir = FileStrings.drawingsDir;
+        string _jsonPath = FileStrings.jsonPath;
+        string _restorePath = FileStrings.restorePath;
+        string _zipPath = FileStrings.zipPath;
+        string _encPath = FileStrings.encPath;
+        string _workBackupPath = FileStrings.workBackupPath;
+        string _drawingsDir = FileStrings.drawingsDir;
 
         public Form1(NoteRepository<Note> repository, INoteFileService fileService,
             IZipExportService zipService, IEncryptionService encryptionService, DrawingService drawingService)
         {
             InitializeComponent();
-            _repository = repository;
-            _fileService = fileService;
-            _zipService = zipService;
-            _encryptionService = encryptionService;
-            _drawingService = drawingService;
+
+            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            _fileService = fileService ?? throw new ArgumentNullException(nameof(fileService));
+            _zipService = zipService ?? throw new ArgumentNullException(nameof(zipService));
+            _encryptionService = encryptionService ?? throw new ArgumentNullException(nameof(encryptionService));
+            _drawingService = drawingService ?? throw new ArgumentNullException(nameof(drawingService));
 
             this.FormClosing += Form1_FormClosing;
 
-            
-            notesListBox.DisplayMember = "ListDisplay";RefreshNotesList();
+            notesListBox.DisplayMember = "ListDisplay";
+            RefreshNotesList();
 
             _autosaveService = new AutosaveService<Note>(
-            jsonPath,
-            restorePath,
-            workBackupPath,
-            () =>
-            {
-                SaveWorkingNoteToBackup();
-                return _repository.GetAll();
-            },
-            (path, data) => _fileService.Save(path, data),
-            1000
+                _jsonPath,
+                _restorePath,
+                _workBackupPath,
+                () =>
+                {
+                    SaveWorkingNoteToBackup();
+                    return _repository.GetAll();
+                },
+                (path, data) => _fileService.Save(path, data),
+                1000
             );
 
             _autosaveService.Start();
@@ -127,7 +128,7 @@ namespace Menedżer_notatek_i_rysunków
         {
             try
             {
-                _zipService.ExportNotesToZip(_repository.GetAll(), _fileService, jsonPath, zipPath);
+                _zipService.ExportNotesToZip(_repository.GetAll(), _fileService, _jsonPath, _zipPath);
                 MessageBox.Show("Export completed.");
             }
             catch (Exception ex)
@@ -193,7 +194,7 @@ namespace Menedżer_notatek_i_rysunków
 
             try
             {
-                _zipService.ExportNotesToEncryptedZip(_repository.GetAll(), _fileService, jsonPath, zipPath, encPath, _encryptionService, password);
+                _zipService.ExportNotesToEncryptedZip(_repository.GetAll(), _fileService, _jsonPath, _zipPath, _encPath, _encryptionService, password);
                 MessageBox.Show("Encrypted export completed.");
             }
             catch (Exception ex)
@@ -240,10 +241,10 @@ namespace Menedżer_notatek_i_rysunków
 
         private void restore()
         {
-            if (File.Exists(restorePath) && !_autosaveService.HasUnsavedChanges())
+            if (File.Exists(_restorePath) && !_autosaveService.HasUnsavedChanges())
                 return;
 
-            if (File.Exists(restorePath))
+            if (File.Exists(_restorePath))
             {
                 var result = MessageBox.Show(
                     "An autosaved session was found. Restore it?",
@@ -253,7 +254,7 @@ namespace Menedżer_notatek_i_rysunków
 
                 if (result == DialogResult.Yes)
                 {
-                    var restored = _fileService.Load(restorePath);
+                    var restored = _fileService.Load(_restorePath);
                     _repository.Clear();
                     foreach (var note in restored)
                         _repository.Add(note);
@@ -262,7 +263,7 @@ namespace Menedżer_notatek_i_rysunków
                 }
             }
 
-            if (File.Exists(workBackupPath))
+            if (File.Exists(_workBackupPath))
             {
                 var result = MessageBox.Show(
                     "A working note was found. Restore it?",
@@ -272,7 +273,7 @@ namespace Menedżer_notatek_i_rysunków
 
                 if (result == DialogResult.Yes)
                 {
-                    var work = _fileService.Load(workBackupPath).FirstOrDefault();
+                    var work = _fileService.Load(_workBackupPath).FirstOrDefault();
                     if (work != null)
                         noteTextBoxRich.Text = work.TextContent;
                 }
@@ -294,9 +295,9 @@ namespace Menedżer_notatek_i_rysunków
 
             Note tempNote = null;
 
-            if (File.Exists(workBackupPath))
+            if (File.Exists(_workBackupPath))
             {
-                var existing = _fileService.Load(workBackupPath);
+                var existing = _fileService.Load(_workBackupPath);
                 tempNote = existing.FirstOrDefault();
             }
 
@@ -309,23 +310,23 @@ namespace Menedżer_notatek_i_rysunków
                 tempNote.UpdateText(text);
             }
 
-            _fileService.Save(workBackupPath, new List<Note> { tempNote });
+            _fileService.Save(_workBackupPath, new List<Note> { tempNote });
         }
 
         private void onClose(FormClosingEventArgs e)
         {
             askAboutWork(e);
-            _fileService.Save(jsonPath, _repository.GetAll());
+            _fileService.Save(_jsonPath, _repository.GetAll());
 
-            if (File.Exists(restorePath))
-                File.Delete(restorePath);
+            if (File.Exists(_restorePath))
+                File.Delete(_restorePath);
 
             _autosaveService.Dispose();
         }
 
         private void askAboutWork(FormClosingEventArgs e)
         {
-            if (File.Exists(workBackupPath))
+            if (File.Exists(_workBackupPath))
             {
                 var result = MessageBox.Show(
                     "Do you want to save the working note?",
@@ -349,7 +350,7 @@ namespace Menedżer_notatek_i_rysunków
                         askSaveAs();
                     }
                 }
-                File.Delete(workBackupPath);
+                File.Delete(_workBackupPath);
             }
         }
 
