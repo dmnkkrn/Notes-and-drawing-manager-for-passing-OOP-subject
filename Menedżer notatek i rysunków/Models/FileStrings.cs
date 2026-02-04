@@ -13,5 +13,6 @@ namespace Menedżer_notatek_i_rysunków.Models
         public const string encPath = "notes_export.zip.enc";
         public const string workBackupPath = "work_backup.json";
         public const string drawingsDir = "drawings";
+        public const string audioDir = "audio";
     }
 }

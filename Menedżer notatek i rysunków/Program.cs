@@ -23,6 +23,7 @@ namespace Menedżer_notatek_i_rysunków
             var notes = fileService.Load("notes.json");
             IZipExportService zipService = new ZipExportService();
             IEncryptionService encryptionService = new EncryptionService();
+            IAudioService audioService = new AudioService(FileStrings.audioDir);
 
             var repo = new NoteRepository<Note>();
             foreach (var note in notes)
@@ -32,7 +33,8 @@ namespace Menedżer_notatek_i_rysunków
 
             var drawingService = new DrawingService(FileStrings.drawingsDir);
 
-            Application.Run(new Form1(repo, fileService, zipService, encryptionService, drawingService));
+            Application.Run(new Form1(repo, fileService, zipService, encryptionService, drawingService, audioService));
+
         }
     }
 }

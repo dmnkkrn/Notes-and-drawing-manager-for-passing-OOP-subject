@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Menedżer_notatek_i_rysunków.Services
 {
-    public class DrawingService
+    public class DrawingService //drawing service and audio service would inherit from the same class, maybe in future
     {
         private readonly string _drawingsDir;
 

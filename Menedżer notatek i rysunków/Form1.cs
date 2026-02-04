@@ -21,6 +21,7 @@ namespace Menedżer_notatek_i_rysunków
         private IZipExportService _zipService;
         private IEncryptionService _encryptionService;
         private DrawingService _drawingService;
+        private IAudioService _audioService;
 
         private AutosaveService<Note> _autosaveService;
 
@@ -32,7 +33,8 @@ namespace Menedżer_notatek_i_rysunków
         string _drawingsDir = FileStrings.drawingsDir;
 
         public Form1(NoteRepository<Note> repository, INoteFileService fileService,
-            IZipExportService zipService, IEncryptionService encryptionService, DrawingService drawingService)
+            IZipExportService zipService, IEncryptionService encryptionService,
+            DrawingService drawingService, IAudioService audioService)
         {
             InitializeComponent();
 
@@ -41,6 +43,8 @@ namespace Menedżer_notatek_i_rysunków
             _zipService = zipService ?? throw new ArgumentNullException(nameof(zipService));
             _encryptionService = encryptionService ?? throw new ArgumentNullException(nameof(encryptionService));
             _drawingService = drawingService ?? throw new ArgumentNullException(nameof(drawingService));
+            _audioService = audioService ?? throw new ArgumentNullException(nameof(audioService));
+
 
             this.FormClosing += Form1_FormClosing;
 
@@ -73,7 +77,7 @@ namespace Menedżer_notatek_i_rysunków
                 notesListBox.Items.Add(note);
             }
         }
-        private void Form1_FormClosing(object? sender, FormClosingEventArgs e)      
+        private void Form1_FormClosing(object? sender, FormClosingEventArgs e)
         {
             onClose(e);
         }
@@ -409,6 +413,73 @@ namespace Menedżer_notatek_i_rysunków
         {
             _repository.SortDescending();
             RefreshNotesList();
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void audioEmbed_Click(object sender, EventArgs e)
+        {
+            if (notesListBox.SelectedItem is not Note selectedNote)
+            {
+                MessageBox.Show("Select a note first.");
+                return;
+            }
+
+            using var dialog = new OpenFileDialog
+            {
+                Filter = "WAV files (*.wav)|*.wav",
+                Title = "Select WAV file to attach"
+            };
+
+            if (dialog.ShowDialog() != DialogResult.OK)
+                return;
+
+            var selectedFile = dialog.FileName;
+
+            try
+            {
+                _audioService.EnsureDirectoryExists();
+                _audioService.AttachAudio(selectedNote, selectedFile);
+
+                MessageBox.Show("Audio attached.");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to attach audio: " + ex.Message);
+            }
+        }
+
+        private void audioProperties_Click(object sender, EventArgs e)
+        {
+            if (notesListBox.SelectedItem is not Note selectedNote)
+            {
+                MessageBox.Show("Select a note first.");
+                return;
+            }
+
+            var result = MessageBox.Show(
+                "Delete attached audio?",
+                "Confirm",
+                MessageBoxButtons.YesNo
+            );
+
+            if (result != DialogResult.Yes)
+                return;
+
+            try
+            {
+                _audioService.DeleteAudioForNote(selectedNote.Id);
+                if (selectedNote.Audio != null)
+                    selectedNote.Audio = null; 
+                MessageBox.Show("Audio deleted.");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to delete audio: " + ex.Message);
+            }
         }
     }
 }
