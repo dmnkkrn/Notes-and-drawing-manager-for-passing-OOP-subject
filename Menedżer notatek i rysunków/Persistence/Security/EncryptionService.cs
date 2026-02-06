@@ -12,7 +12,7 @@ namespace Menedżer_notatek_i_rysunków.Persistence.Security
         private const int Iterations = 100_000;
 
         public void EncryptFile(string inputPath, string outputPath, string password)
-        {
+        { 
             byte[] headerBytes = Encoding.ASCII.GetBytes(Header);
             byte[] salt = RandomNumberGenerator.GetBytes(16);
 

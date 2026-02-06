@@ -82,5 +82,6 @@ namespace Menedżer_notatek_i_rysunków.Services
             return Path.Combine(_audioDir, $"{noteId}.wav");
         }
 
+        public bool HasEmbeddedAudio(Note note) => note.Audio != null;
     }
 }

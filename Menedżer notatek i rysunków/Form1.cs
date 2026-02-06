@@ -115,6 +115,15 @@ namespace Menedżer_notatek_i_rysunków
             {
                 noteTextBoxRich.Text = selectedNote.TextContent;
                 ShowDrawingPreview(selectedNote);
+
+                if (_audioService.HasEmbeddedAudio(notesListBox.SelectedItem as Note))
+                {
+                    isAudioLabel.Text = "♪";
+                }
+                else
+                {
+                    isAudioLabel.Text = "";
+                }
             }
             else
             {

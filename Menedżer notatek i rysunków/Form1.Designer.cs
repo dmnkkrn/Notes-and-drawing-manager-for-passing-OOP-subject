@@ -37,6 +37,7 @@
             exportAsZipToolStripMenuItem = new ToolStripMenuItem();
             exportAsZipEncryptedToolStripMenuItem = new ToolStripMenuItem();
             importZipToolStripMenuItem = new ToolStripMenuItem();
+            exportImportToolStripMenuItem1 = new ToolStripMenuItem();
             noteTextBoxRich = new RichTextBox();
             editButton = new Button();
             drawButton = new Button();
@@ -45,7 +46,7 @@
             buttonSortDesc = new Button();
             audioEmbed = new Button();
             audioProperties = new Button();
-            exportImportToolStripMenuItem1 = new ToolStripMenuItem();
+            isAudioLabel = new Label();
             menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBoxPreview).BeginInit();
             SuspendLayout();
@@ -126,6 +127,12 @@
             importZipToolStripMenuItem.Size = new Size(206, 22);
             importZipToolStripMenuItem.Text = "Import Zip";
             importZipToolStripMenuItem.Click += importZipToolStripMenuItem_Click;
+            // 
+            // exportImportToolStripMenuItem1
+            // 
+            exportImportToolStripMenuItem1.Name = "exportImportToolStripMenuItem1";
+            exportImportToolStripMenuItem1.Size = new Size(206, 22);
+            exportImportToolStripMenuItem1.Text = "Export / Import";
             // 
             // noteTextBoxRich
             // 
@@ -212,17 +219,20 @@
             audioProperties.UseVisualStyleBackColor = true;
             audioProperties.Click += audioProperties_Click;
             // 
-            // exportImportToolStripMenuItem1
+            // isAudioLabel
             // 
-            exportImportToolStripMenuItem1.Name = "exportImportToolStripMenuItem1";
-            exportImportToolStripMenuItem1.Size = new Size(206, 22);
-            exportImportToolStripMenuItem1.Text = "Export / Import";
+            isAudioLabel.AutoSize = true;
+            isAudioLabel.Location = new Point(605, 26);
+            isAudioLabel.Name = "isAudioLabel";
+            isAudioLabel.Size = new Size(0, 15);
+            isAudioLabel.TabIndex = 12;
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(700, 363);
+            Controls.Add(isAudioLabel);
             Controls.Add(audioProperties);
             Controls.Add(audioEmbed);
             Controls.Add(buttonSortDesc);
@@ -267,5 +277,6 @@
         private Button audioEmbed;
         private Button audioProperties;
         private ToolStripMenuItem exportImportToolStripMenuItem1;
+        private Label isAudioLabel;
     }
 }

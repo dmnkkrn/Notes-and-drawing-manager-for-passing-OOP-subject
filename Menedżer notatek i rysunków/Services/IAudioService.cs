@@ -10,5 +10,6 @@ namespace Menedżer_notatek_i_rysunków.Services
         string GetAudioPathForNote(Guid noteId); 
 
         void EnsureDirectoryExists();
+        bool HasEmbeddedAudio(Note note);
     }
 }
