@@ -8,9 +8,9 @@ using System.Windows.Forms;
 
 namespace Menedżer_notatek_i_rysunków
 {
-    public partial class Form2 : Form
+    public partial class AudioForm : Form
     {
-        public Form2()
+        public AudioForm()
         {
             InitializeComponent();
         }

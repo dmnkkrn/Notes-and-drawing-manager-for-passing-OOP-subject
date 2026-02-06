@@ -1,6 +1,6 @@
 ﻿namespace Menedżer_notatek_i_rysunków
 {
-    partial class Form2
+    partial class AudioForm
     {
         /// <summary>
         /// Required designer variable.
@@ -71,7 +71,7 @@
             deleteButton.Text = "Delete";
             deleteButton.UseVisualStyleBackColor = true;
             // 
-            // Form2
+            // AudioForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
@@ -80,8 +80,8 @@
             Controls.Add(stopButton);
             Controls.Add(playButton);
             Controls.Add(audioName);
-            Name = "Form2";
-            Text = "Form2";
+            Name = "AudioForm";
+            Text = "Audio";
             ResumeLayout(false);
             PerformLayout();
         }

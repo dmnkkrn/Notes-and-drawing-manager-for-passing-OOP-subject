@@ -31,6 +31,7 @@ namespace Menedżer_notatek_i_rysunków
         string _encPath = FileStrings.encPath;
         string _workBackupPath = FileStrings.workBackupPath;
         string _drawingsDir = FileStrings.drawingsDir;
+        string _audioDir = FileStrings.audioDir;
 
         public Form1(NoteRepository<Note> repository, INoteFileService fileService,
             IZipExportService zipService, IEncryptionService encryptionService,
@@ -141,6 +142,9 @@ namespace Menedżer_notatek_i_rysunków
         {
             try
             {
+                _drawingService.EnsureDirectoryExists();
+                _audioService.EnsureDirectoryExists();
+
                 _zipService.ExportNotesToZip(_repository.GetAll(), _fileService, _jsonPath, _zipPath);
                 MessageBox.Show("Export completed.");
             }
@@ -207,6 +211,9 @@ namespace Menedżer_notatek_i_rysunków
 
             try
             {
+                _drawingService.EnsureDirectoryExists();
+                _audioService.EnsureDirectoryExists();
+
                 _zipService.ExportNotesToEncryptedZip(_repository.GetAll(), _fileService, _jsonPath, _zipPath, _encPath, _encryptionService, password);
                 MessageBox.Show("Encrypted export completed.");
             }
