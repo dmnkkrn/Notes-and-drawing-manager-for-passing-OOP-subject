@@ -2,6 +2,7 @@ using Menedżer_notatek_i_rysunków.Models;
 using Menedżer_notatek_i_rysunków.Persistence;
 using Menedżer_notatek_i_rysunków.Persistence.Security;
 using Menedżer_notatek_i_rysunków.Repositories;
+using Menedżer_notatek_i_rysunków.Services;
 using System.Diagnostics;
 
 namespace Menedżer_notatek_i_rysunków
@@ -18,10 +19,11 @@ namespace Menedżer_notatek_i_rysunków
             // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
 
-            var fileService = new NoteFileService();
+            INoteFileService fileService = new NoteFileService();
             var notes = fileService.Load("notes.json");
-            var zipService = new ZipExportService();
-            var encryptionService = new EncryptionService();
+            IZipExportService zipService = new ZipExportService();
+            IEncryptionService encryptionService = new EncryptionService();
+            IAudioService audioService = new AudioService(FileStrings.audioDir);
 
             var repo = new NoteRepository<Note>();
             foreach (var note in notes)
@@ -29,8 +31,10 @@ namespace Menedżer_notatek_i_rysunków
                 repo.Add(note);
             }
 
+            var drawingService = new DrawingService(FileStrings.drawingsDir);
 
-            Application.Run(new Form1(repo, fileService, zipService, encryptionService));
+            Application.Run(new Form1(repo, fileService, zipService, encryptionService, drawingService, audioService));
+
         }
     }
 }

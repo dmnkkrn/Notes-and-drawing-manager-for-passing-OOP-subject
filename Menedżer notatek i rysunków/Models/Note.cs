@@ -41,6 +41,11 @@ namespace Menedżer_notatek_i_rysunków.Models
             Audio = audio;
         }
 
+        
+
+
+        public string ListDisplay => $"{Title} [{CreatedAt:yyyy-MM-dd HH:mm}]";
+
         public static bool operator ==(Note a, Note b)
         {
             if (ReferenceEquals(a, b)) return true;

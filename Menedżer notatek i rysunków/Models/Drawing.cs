@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Menedżer_notatek_i_rysunków.Models
+﻿namespace Menedżer_notatek_i_rysunków.Models
 {
     public class Drawing
     {
-        public byte[] ImageData { get; private set; }
+        public string ImagePath { get; set; }
 
-        public Drawing(byte[] imageData)
+        public Drawing(string imagePath)
         {
-            ImageData = imageData;
+            ImagePath = imagePath;
         }
     }
-
 }
