@@ -181,26 +181,11 @@ namespace Menedżer_notatek_i_rysunków
                         return;
                 }
 
-                var importedNotes = _zipService.ImportNotesFromZip(selectedPath, _fileService, _encryptionService, password);
+                var mergedNotes = _zipService.ImportAndMergeNotesFromZip(selectedPath, _repository.GetAll(), _fileService, _encryptionService, password);
 
-                // Merge importedNotes into in-memory repository instead of wiping it.
-                var current = _repository.GetAll().ToList();
-
-                foreach (var imp in importedNotes)
-                {
-                    var existing = current.FirstOrDefault(e => e == imp);
-                    if (existing == null)
-                    {
-                        _repository.Add(imp);
-                    }
-                    else
-                    {
-                        if (existing.Drawing == null && imp.Drawing != null) existing.AttachDrawing(imp.Drawing);
-                        if (existing.Audio == null && imp.Audio != null) existing.AttachAudio(imp.Audio);
-                        if (string.IsNullOrWhiteSpace(existing.TextContent) && !string.IsNullOrWhiteSpace(imp.TextContent)) existing.UpdateText(imp.TextContent);
-                        if (string.IsNullOrWhiteSpace(existing.Title) && !string.IsNullOrWhiteSpace(imp.Title)) existing.Title = imp.Title;
-                    }
-                }
+                _repository.Clear();
+                foreach (var note in mergedNotes)
+                    _repository.Add(note);
 
                 RefreshNotesList();
                 noteTextBoxRich.Clear();
@@ -490,6 +475,42 @@ namespace Menedżer_notatek_i_rysunków
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

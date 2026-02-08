@@ -14,5 +14,6 @@ namespace Menedżer_notatek_i_rysunków.Persistence
         void ExportNotesToEncryptedZip(IEnumerable<Models.Note> notes, INoteFileService fileService, string jsonPath, string zipPath, string encPath, IEncryptionService encryptionService, string password);
 
         List<Note> ImportNotesFromZip(string selectedPath, INoteFileService fileService, IEncryptionService encryptionService, string? password = null);
+        List<Note> ImportAndMergeNotesFromZip(string selectedPath, IEnumerable<Note> existingNotes, INoteFileService fileService, IEncryptionService encryptionService, string? password = null);
     }
 }

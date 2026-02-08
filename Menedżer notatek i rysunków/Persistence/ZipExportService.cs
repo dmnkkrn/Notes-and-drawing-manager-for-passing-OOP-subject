@@ -144,6 +144,77 @@ namespace Menedżer_notatek_i_rysunków.Persistence
             }
         }
 
+        public List<Note> ImportAndMergeNotesFromZip(string selectedPath, IEnumerable<Note> existingNotes, INoteFileService fileService, IEncryptionService encryptionService, string? password = null)
+        {
+            if (string.IsNullOrWhiteSpace(selectedPath)) throw new ArgumentNullException(nameof(selectedPath));
+            ValidateNotNull(fileService);
+            ValidateNotNull(encryptionService);
+            ValidateNotNull(existingNotes);
+            EnsureFileExists(selectedPath);
+
+            var workDir = Path.Combine(Path.GetTempPath(), "NaDM_Work_" + Guid.NewGuid());
+            var extractDir = Path.Combine(workDir, "extract");
+            Directory.CreateDirectory(workDir);
+            Directory.CreateDirectory(extractDir);
+
+            var zipToImport = selectedPath;
+            string? tempZipPath = null;
+
+            try
+            {
+                if (encryptionService.IsEncrypted(selectedPath))
+                {
+                    if (string.IsNullOrWhiteSpace(password)) throw new InvalidOperationException("Encrypted archive requires a password.");
+                    tempZipPath = Path.Combine(workDir, Path.GetFileName(selectedPath).Replace(".enc", ""));
+                    encryptionService.DecryptFile(selectedPath, tempZipPath, password);
+                    zipToImport = tempZipPath;
+                }
+
+                ImportZip(zipToImport, extractDir);
+
+                var appBase = AppDomain.CurrentDomain.BaseDirectory;
+                var extractedDrawings = Path.Combine(extractDir, FileStrings.drawingsDir);
+                var extractedAudio = Path.Combine(extractDir, FileStrings.audioDir);
+                var targetDrawings = Path.Combine(appBase, FileStrings.drawingsDir);
+                var targetAudio = Path.Combine(appBase, FileStrings.audioDir);
+
+                CopyDirectoryContents(extractedDrawings, targetDrawings);
+                CopyDirectoryContents(extractedAudio, targetAudio);
+
+                var importedJsonPath = Path.Combine(extractDir, FileStrings.NotesFileName);
+                if (!File.Exists(importedJsonPath)) throw new FileNotFoundException("notes.json not found inside archive.", importedJsonPath);
+
+                var importedNotes = fileService.Load(importedJsonPath);
+                var current = existingNotes.ToList();
+
+                foreach (var imp in importedNotes)
+                {
+                    var existing = current.FirstOrDefault(e => e == imp);
+                    if (existing != imp)
+                    {
+                        current.Add(imp);
+                    }
+                    else
+                    {
+                        if (existing.Drawing == null && imp.Drawing != null) existing.AttachDrawing(imp.Drawing);
+                        if (existing.Audio == null && imp.Audio != null) existing.AttachAudio(imp.Audio);
+                        if (string.IsNullOrWhiteSpace(existing.TextContent) && !string.IsNullOrWhiteSpace(imp.TextContent)) existing.UpdateText(imp.TextContent);
+                        if (string.IsNullOrWhiteSpace(existing.Title) && !string.IsNullOrWhiteSpace(imp.Title)) existing.Title = imp.Title;
+                    }
+                }
+
+                return current;
+            }
+            finally
+            {
+                try
+                {
+                    if (Directory.Exists(workDir)) Directory.Delete(workDir, true);
+                }
+                catch { }
+            }
+        }
+
         private static void ValidateNotNull(object? obj)
         {
             if (obj == null) throw new ArgumentNullException();
