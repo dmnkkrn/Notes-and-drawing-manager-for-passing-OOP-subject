@@ -476,26 +476,14 @@ namespace Menedżer_notatek_i_rysunków
                 return;
             }
 
-            var result = MessageBox.Show(
-                "Delete attached audio?",
-                "Confirm",
-                MessageBoxButtons.YesNo
-            );
-
-            if (result != DialogResult.Yes)
+            if (!_audioService.HasEmbeddedAudio(selectedNote))
+            {
+                MessageBox.Show("No audio attached.");
                 return;
+            }
 
-            try
-            {
-                _audioService.DeleteAudioForNote(selectedNote.Id);
-                if (selectedNote.Audio != null)
-                    selectedNote.Audio = null; 
-                MessageBox.Show("Audio deleted.");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Failed to delete audio: " + ex.Message);
-            }
+            using var form = new AudioForm(selectedNote, _audioService);
+            form.ShowDialog();
         }
     }
 }

@@ -26,8 +26,17 @@ namespace Menedżer_notatek_i_rysunków.Persistence
 
             string json = File.ReadAllText(path);
 
-            return JsonSerializer.Deserialize<List<Note>>(json)
-                   ?? new List<Note>();
+            if (string.IsNullOrWhiteSpace(json))
+                return new List<Note>();
+
+            try
+            {
+                return JsonSerializer.Deserialize<List<Note>>(json) ?? new List<Note>();
+            }
+            catch (System.Text.Json.JsonException)
+            {
+                return new List<Note>();
+            }
         }
     }
 }
