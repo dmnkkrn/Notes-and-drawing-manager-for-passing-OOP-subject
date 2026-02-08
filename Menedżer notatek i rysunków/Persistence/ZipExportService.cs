@@ -28,7 +28,23 @@ namespace Menedżer_notatek_i_rysunków.Persistence
         {
             ValidateNotNull(notes);
             ValidateNotNull(fileService);
-            SaveNotesAndCreateZip(notes, fileService, jsonPath, zipPath);
+
+            var workDir = Path.Combine(Path.GetTempPath(), "NaDM_Export_" + Guid.NewGuid());
+            Directory.CreateDirectory(workDir);
+            var tempJson = Path.Combine(workDir, FileStrings.NotesFileName);
+            var tempZip = Path.Combine(workDir, Path.GetFileName(zipPath));
+
+            try
+            {
+                fileService.Save(tempJson, notes);
+                CreateZipFromFile(tempJson, tempZip);
+                DeleteIfExists(zipPath);
+                File.Copy(tempZip, zipPath, overwrite: true);
+            }
+            finally
+            {
+                try { if (Directory.Exists(workDir)) Directory.Delete(workDir, true); } catch { }
+            }
         }
 
         public void ExportNotesToEncryptedZip(IEnumerable<Note> notes, INoteFileService fileService, string jsonPath, string zipPath, string encPath, IEncryptionService encryptionService, string password)
@@ -37,14 +53,23 @@ namespace Menedżer_notatek_i_rysunków.Persistence
             ValidateNotNull(fileService);
             ValidateNotNull(encryptionService);
             if (string.IsNullOrWhiteSpace(password)) throw new ArgumentException("Password required for encrypted export.", nameof(password));
-            SaveNotesAndCreateZip(notes, fileService, jsonPath, zipPath);
+
+            var workDir = Path.Combine(Path.GetTempPath(), "NaDM_Export_" + Guid.NewGuid());
+            Directory.CreateDirectory(workDir);
+            var tempJson = Path.Combine(workDir, FileStrings.NotesFileName);
+            var tempZip = Path.Combine(workDir, Path.GetFileName(zipPath));
+
             try
             {
-                encryptionService.EncryptFile(zipPath, encPath, password);
+                fileService.Save(tempJson, notes);
+                CreateZipFromFile(tempJson, tempZip);
+                encryptionService.EncryptFile(tempZip, encPath, password);
             }
             finally
             {
-                SafeDeleteFile(zipPath);
+                try { if (File.Exists(tempZip)) File.Delete(tempZip); } catch { }
+                try { if (File.Exists(tempJson)) File.Delete(tempJson); } catch { }
+                try { if (Directory.Exists(workDir)) Directory.Delete(workDir, true); } catch { }
             }
         }
 
@@ -92,8 +117,18 @@ namespace Menedżer_notatek_i_rysunków.Persistence
 
                 foreach (var imp in importedNotes)
                 {
-                    if (!existingNotes.Any(e => e == imp))
+                    var existing = existingNotes.FirstOrDefault(e => e == imp);
+                    if (existing == null)
+                    {
                         existingNotes.Add(imp);
+                    }
+                    else
+                    {
+                        if (existing.Drawing == null && imp.Drawing != null) existing.Drawing = imp.Drawing;
+                        if (existing.Audio == null && imp.Audio != null) existing.Audio = imp.Audio;
+                        if (string.IsNullOrWhiteSpace(existing.TextContent) && !string.IsNullOrWhiteSpace(imp.TextContent)) existing.TextContent = imp.TextContent;
+                        if (string.IsNullOrWhiteSpace(existing.Title) && !string.IsNullOrWhiteSpace(imp.Title)) existing.Title = imp.Title;
+                    }
                 }
 
                 fileService.Save(FileStrings.jsonPath, existingNotes);

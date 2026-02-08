@@ -11,6 +11,7 @@ using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
+using System.Linq;
 
 namespace Menedżer_notatek_i_rysunków
 {
@@ -180,12 +181,25 @@ namespace Menedżer_notatek_i_rysunków
                         return;
                 }
 
-                var notes = _zipService.ImportNotesFromZip(selectedPath, _fileService, _encryptionService, password);
+                var importedNotes = _zipService.ImportNotesFromZip(selectedPath, _fileService, _encryptionService, password);
 
-                _repository.Clear();
-                foreach (var note in notes)
+                // Merge importedNotes into in-memory repository instead of wiping it.
+                var current = _repository.GetAll().ToList();
+
+                foreach (var imp in importedNotes)
                 {
-                    _repository.Add(note);
+                    var existing = current.FirstOrDefault(e => e == imp);
+                    if (existing == null)
+                    {
+                        _repository.Add(imp);
+                    }
+                    else
+                    {
+                        if (existing.Drawing == null && imp.Drawing != null) existing.AttachDrawing(imp.Drawing);
+                        if (existing.Audio == null && imp.Audio != null) existing.AttachAudio(imp.Audio);
+                        if (string.IsNullOrWhiteSpace(existing.TextContent) && !string.IsNullOrWhiteSpace(imp.TextContent)) existing.UpdateText(imp.TextContent);
+                        if (string.IsNullOrWhiteSpace(existing.Title) && !string.IsNullOrWhiteSpace(imp.Title)) existing.Title = imp.Title;
+                    }
                 }
 
                 RefreshNotesList();
@@ -238,25 +252,14 @@ namespace Menedżer_notatek_i_rysunków
         {
             string title = Interaction.InputBox(
                 "Title:",
-                "Title"
-            ).Trim();
+                "New note"
+            );
 
-            saveAs(title);
-        }
-        private void saveAs(string title)
-        {
-            if (string.IsNullOrWhiteSpace(title))
-                return;
+            if (string.IsNullOrWhiteSpace(title)) return;
 
-            string content = noteTextBoxRich.Text.Trim();
-
-            var note = new Note(title, content);
-
+            var note = new Note(title, "");
             _repository.Add(note);
             RefreshNotesList();
-
-            notesListBox.SelectedItem = note;
-            noteTextBoxRich.Clear();
         }
 
         private void restore()
@@ -487,6 +490,12 @@ namespace Menedżer_notatek_i_rysunków
         }
     }
 }
+
+
+
+
+
+
 
 
 

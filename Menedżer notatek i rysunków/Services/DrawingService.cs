@@ -58,12 +58,17 @@ namespace Menedżer_notatek_i_rysunków.Services
 
         private void DeleteDrawing(string path)
         {
-            if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
-            {
-                throw new Exception("Path to drawing cannot be blank or must exist");
+            if (string.IsNullOrWhiteSpace(path))
                 return;
-            }
-            File.Delete(path);
+
+            
+            var fullPath = Path.GetFullPath(path);
+
+           
+            if (!File.Exists(fullPath))
+                return;
+
+            File.Delete(fullPath);
         }
 
         public void DeleteDrawingForNote(System.Guid noteId)
