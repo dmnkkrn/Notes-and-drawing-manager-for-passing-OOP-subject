@@ -63,7 +63,7 @@ namespace Menedżer_notatek_i_rysunków
                     return _repository.GetAll();
                 },
                 (path, data) => _fileService.Save(path, data),
-                1000
+                10000
             );
 
             _autosaveService.Start();
@@ -105,6 +105,12 @@ namespace Menedżer_notatek_i_rysunków
                 {
                     _repository.Remove(selectedNote);
                     _drawingService.DeleteDrawingForNote(selectedNote.Id);
+                    
+                    if (_audioService.HasEmbeddedAudio(selectedNote))
+                    {
+                        _audioService.DeleteAudioForNote(selectedNote);
+                    }
+                    
                     RefreshNotesList();
                     pictureBoxPreview.Image = null;
                 }

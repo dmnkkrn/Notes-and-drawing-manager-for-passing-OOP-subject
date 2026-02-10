@@ -71,10 +71,14 @@ namespace Menedżer_notatek_i_rysunków.Services
             File.Delete(path);
         }
 
-        public void DeleteAudioForNote(System.Guid noteId)
+        public void DeleteAudioForNote(Note note)
         {
-            var path = GetAudioPathForNote(noteId);
+            if (note is null)
+                throw new ArgumentNullException(nameof(note));
+
+            var path = GetAudioPathForNote(note.Id);
             DeleteAudio(path);
+            note.Audio = null;
         }
 
         public string GetAudioPathForNote(System.Guid noteId)
