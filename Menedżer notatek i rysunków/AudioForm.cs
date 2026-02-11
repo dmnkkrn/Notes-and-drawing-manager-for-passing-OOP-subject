@@ -65,8 +65,7 @@ namespace Menedżer_notatek_i_rysunków
 
             try
             {
-                _audioService.DeleteAudioForNote(_note.Id);
-                _note.Audio = null;
+                _audioService.DeleteAudioForNote(_note);
                 MessageBox.Show("Audio deleted.");
                 Close();
             }

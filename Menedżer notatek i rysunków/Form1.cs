@@ -12,6 +12,7 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 
 namespace Menedżer_notatek_i_rysunków
 {
@@ -24,10 +25,9 @@ namespace Menedżer_notatek_i_rysunków
         private DrawingService _drawingService;
         private IAudioService _audioService;
 
-        private AutosaveService<Note> _autosaveService;
+        private AutosaveService _autosaveService;
 
         string _jsonPath = FileStrings.jsonPath;
-        string _restorePath = FileStrings.restorePath;
         string _zipPath = FileStrings.zipPath;
         string _encPath = FileStrings.encPath;
         string _workBackupPath = FileStrings.workBackupPath;
@@ -52,18 +52,14 @@ namespace Menedżer_notatek_i_rysunków
 
             notesListBox.DisplayMember = "ListDisplay";
             RefreshNotesList();
-
-            _autosaveService = new AutosaveService<Note>(
-                _jsonPath,
-                _restorePath,
-                _workBackupPath,
+            
+            _autosaveService = new AutosaveService(
                 () =>
                 {
                     SaveWorkingNoteToBackup();
-                    return _repository.GetAll();
+                    
                 },
-                (path, data) => _fileService.Save(path, data),
-                1000
+                5000
             );
 
             _autosaveService.Start();
@@ -248,29 +244,8 @@ namespace Menedżer_notatek_i_rysunków
         }
 
         private void restore()
-        {
-            if (File.Exists(_restorePath) && !_autosaveService.HasUnsavedChanges())
-                return;
-
-            if (File.Exists(_restorePath))
-            {
-                var result = MessageBox.Show(
-                    "An autosaved session was found. Restore it?",
-                    "Restore session",
-                    MessageBoxButtons.YesNo
-                );
-
-                if (result == DialogResult.Yes)
-                {
-                    var restored = _fileService.Load(_restorePath);
-                    _repository.Clear();
-                    foreach (var note in restored)
-                        _repository.Add(note);
-
-                    RefreshNotesList();
-                }
-            }
-
+        { 
+        
             if (File.Exists(_workBackupPath))
             {
                 var result = MessageBox.Show(
@@ -325,9 +300,6 @@ namespace Menedżer_notatek_i_rysunków
         {
             askAboutWork(e);
             _fileService.Save(_jsonPath, _repository.GetAll());
-
-            if (File.Exists(_restorePath))
-                File.Delete(_restorePath);
 
             _autosaveService.Dispose();
         }
@@ -475,52 +447,5 @@ namespace Menedżer_notatek_i_rysunków
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

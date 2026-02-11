@@ -6,7 +6,7 @@ namespace Menedżer_notatek_i_rysunków.Services
     public interface IAudioService
     {
         void AttachAudio(Note note, string sourceFilePath);
-        void DeleteAudioForNote(Guid noteId); 
+        void DeleteAudioForNote(Note note); 
         string GetAudioPathForNote(Guid noteId); 
 
         void EnsureDirectoryExists();
